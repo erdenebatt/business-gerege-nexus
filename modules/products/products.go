@@ -162,8 +162,10 @@ func (m *Module) updateProductHandler(w http.ResponseWriter, r *http.Request) {
 		Price  float64 `json:"price"`
 		Active bool    `json:"active"`
 	}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		nexus.Error(w, http.StatusBadRequest, "invalid payload")
+	// Same rule as create: this UPDATE writes every column, so a partial body
+	// would blank sku/name.
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.SKU == "" || req.Name == "" {
+		nexus.Error(w, http.StatusBadRequest, "invalid product payload, sku and name required")
 		return
 	}
 

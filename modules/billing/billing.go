@@ -115,9 +115,11 @@ func (m *BillingModule) createInvoiceHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	// Input is validated above, so a failure here is the database's; don't
+	// hand its error text to the client as a 400.
 	inv, err := m.CreateInvoice(r.Context(), tenantID, req.ContactName, req.Amount)
 	if err != nil {
-		nexus.Error(w, http.StatusBadRequest, err.Error())
+		nexus.Error(w, http.StatusInternalServerError, "could not create the invoice")
 		return
 	}
 
